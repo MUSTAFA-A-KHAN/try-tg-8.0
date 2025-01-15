@@ -11,21 +11,20 @@
   
   <!-- Display Area for User ID -->
   <div id="user-info">
-    <button hx-get="/get-user-id" hx-target="#user-info" hx-trigger="click">Get User ID</button>
+    <button id="get-user-id">Get User ID</button>
   </div>
 
-  <!-- Inline Script to Interact with Telegram WebApp -->
+  <!-- Inline Script to Fetch and Display User ID -->
   <script>
-    // Mock endpoint for htmx (Replace with actual endpoint if needed)
-    document.addEventListener("htmx:configRequest", (event) => {
-      if (event.detail.path === "/get-user-id") {
-        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-        const userId = user?.id || "User not available";
-        const response = `<p>Your Telegram User ID is: <strong>${userId}</strong></p>`;
-        event.detail.xhr.open("GET", "data:text/plain," + encodeURIComponent(response));
-      }
+    document.getElementById('get-user-id').addEventListener('click', () => {
+      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+      const userId = user?.id || "Unable to retrieve user ID. Make sure the app is opened in Telegram.";
+      
+      // Update the UI with the user ID
+      document.getElementById('user-info').innerHTML = `
+        <p>Your Telegram User ID is: <strong>${userId}</strong></p>
+      `;
     });
   </script>
 </body>
 </html>
-
