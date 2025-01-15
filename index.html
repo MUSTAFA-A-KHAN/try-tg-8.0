@@ -1,1 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram User ID</title>
+  <script src="https://unpkg.com/htmx.org"></script>
+</head>
+<body>
+  <h1>Welcome to the Telegram Mini App</h1>
+  
+  <!-- Display Area for User ID -->
+  <div id="user-info">
+    <button hx-get="/get-user-id" hx-target="#user-info" hx-trigger="click">Get User ID</button>
+  </div>
+
+  <!-- Inline Script to Interact with Telegram WebApp -->
+  <script>
+    // Mock endpoint for htmx (Replace with actual endpoint if needed)
+    document.addEventListener("htmx:configRequest", (event) => {
+      if (event.detail.path === "/get-user-id") {
+        const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const userId = user?.id || "User not available";
+        const response = `<p>Your Telegram User ID is: <strong>${userId}</strong></p>`;
+        event.detail.xhr.open("GET", "data:text/plain," + encodeURIComponent(response));
+      }
+    });
+  </script>
+</body>
+</html>
 
