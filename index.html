@@ -3,28 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Telegram User ID</title>
-  <script src="https://unpkg.com/htmx.org"></script>
+  <title>React with Telegram WebApp</title>
+  <!-- React and ReactDOM from CDN -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel to parse JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-  <h1>Welcome to the Telegram Mini App</h1>
-  
-  <!-- Display Area for User ID -->
-  <div id="user-info">
-    <button id="get-user-id">Get User ID</button>
-  </div>
+  <!-- Root Container for React -->
+  <div id="root"></div>
 
-  <!-- Inline Script to Fetch and Display User ID -->
-  <script>
-    document.getElementById('get-user-id').addEventListener('click', () => {
-      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      const userId = user?.id || "Unable to retrieve user ID. Make sure the app is opened in Telegram.";
-      
-      // Update the UI with the user ID
-      document.getElementById('user-info').innerHTML = `
-        <p>Your Telegram User ID is: <strong>${userId}</strong></p>
-      `;
-    });
+  <!-- React Script -->
+  <script type="text/babel">
+    const { useState, useEffect, createContext, useContext } = React;
+
+    const AccountContext = createContext();
+
+    const AccountWrapper = ({ children }) => {
+      const [userName, setUserName] = useState("");
+
+      useEffect(() => {
+        if (window.Telegram && window.Telegram.WebApp) {
+          const tg = window.Telegram.WebApp;
+
+          tg.ready();
+
+          const user = tg.initDataUnsafe.user;
+
+          if (user && user.username) {
+            setUserName(user.username);
+          } else {
+            console.error("Username not available or user not logged in.");
+          }
+        } else {
+          console.error("Telegram WebApp not loaded.");
+        }
+      }, []);
+
+      return (
+        <AccountContext.Provider value={{ userName, setUserName }}>
+          {children}
+        </AccountContext.Provider>
+      );
+    };
+
+    const useAccount = () => useContext(AccountContext);
+
+    const UserProfile = () => {
+      const { userName } = useAccount();
+
+      return <div>Welcome, {userName || "Guest"}!</div>;
+    };
+
+    const App = () => {
+      return (
+        <AccountWrapper>
+          <UserProfile />
+        </AccountWrapper>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById("root"));
   </script>
 </body>
 </html>
